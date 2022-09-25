@@ -12,6 +12,7 @@
 
 {% if uploaded_file_url %}
     <p>アップロード完了<a href="{{ uploaded_file_url }}"">{{ uploaded_file_url }}</a></p>
+    <img src="{{ uploaded_file_url }}"">
 {% endif %}
 
 <p><a href="{% url 'index' %}">戻る</a></p>

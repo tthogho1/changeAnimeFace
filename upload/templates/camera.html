@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<style>
+    #svg-line {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	z-index:2;
+}
+</style>
+    <video id="mov" width="640" height="480" autoplay></video>
+    <svg id="svg-line" width="640" height="480">
+		<line id="rec21" x1="192" y1="160" x2="448" y2="160" style="stroke:red;stroke-width:2" />
+		<line id="rec22" x1="192" y1="416" x2="448" y2="416" style="stroke:red;stroke-width:2" />
+		<line id="rec23" x1="192" y1="160" x2="192" y2="416" style="stroke:red;stroke-width:2" />
+		<line id="rec24" x1="448" y1="160" x2="448" y2="416" style="stroke:red;stroke-width:2" />
+	</svg>
+    <button id="capture" >キャプチャ</button>
+    <canvas id="draw" width="256" height="256" style="display:none"></canvas>
+    <img id="img" width="256" height="256" /><!--img要素-->
+    <form>
+        {% csrf_token %} <!-- CSRF対策 -->
+        <input type="hidden" id="faceImg" name="faceImg" value="">
+    </form>
+    <script>
+        var video = document.getElementById('mov');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+              video.srcObject = stream;
+              video.play();
+            });
+        }
+
+        var video = document.getElementById('mov');
+        var capture = document.getElementById('capture');
+        var canvas = document.getElementById('draw');
+        const img = document.getElementById('img');
+
+        video.onloadedmetadata = function(){ //動画が読み込まれてから処理を開始
+            //capture
+            capture.addEventListener('click',function(){
+            
+                //const w = video.offsetWidth;
+                //const h = video.offsetHeight;
+                const w = 256;
+                const h = 256;
+                canvas.setAttribute("width", w);
+                canvas.setAttribute("height", h);
+                canvas.getContext('2d').drawImage(video, 192, 160, w, h, 0, 0, 256, 256); //videoタグの「今」の状態をcanvasに描写
+
+                img.src = canvas.toDataURL('image/jpeg');
+                document.getElementById('faceImg').value = img.src;
+
+                $.post( '/camera/', $('form').serialize() )
+                .done(function( data ) {
+                    console.log(data);
+                });
+            });
+        }
+
+    </script>
+{% endblock content %}

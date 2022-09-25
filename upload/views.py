@@ -4,6 +4,7 @@ from django.core.files.storage import FileSystemStorage
 from upload.models import Document
 from upload.forms import DocumentForm
 from upload.classes.faceChange import FaceChange
+import base64
 
 def index(request):
     documents = Document.objects.all()
@@ -21,6 +22,24 @@ def basic_upload(request):
             'uploaded_file_url': convert_file_url
         })
     return render(request, 'basic_upload.html')
+
+def camera(request):
+    if request.method == 'POST' and request.POST['faceImg']:
+        faceImg = request.POST['faceImg']
+        faceImg = faceImg.split(',')[1] # remove data:image/jpeg;base64,
+        faceBynary = base64.b64decode(faceImg)
+
+        f = open('C:/SourceCode/changeAnimeFace/media/myfile.jpg', 'wb')
+        f.write(faceBynary)
+        f.close()
+
+        uploaded_file_url = '/media/myfile.jpg'
+        faceChange = FaceChange()
+        convert_file_url = faceChange.changeAnimeFace(uploaded_file_url)
+        return render(request, 'camera.html', {
+            'uploaded_file_url': convert_file_url
+        })
+    return render(request, 'camera.html')
 
 def modelform_upload(request):
     if request.method == 'POST':

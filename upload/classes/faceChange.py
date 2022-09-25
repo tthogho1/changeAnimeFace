@@ -4,6 +4,7 @@ import tensorflow as tf
 import numpy as np
 from matplotlib import pyplot as plt
 import PIL 
+import os
 
 class FaceChange:
 
@@ -12,10 +13,16 @@ class FaceChange:
       FILE_PATH="C:/SourceCode/changeAnimeFace" + filename
       face_image = face_recognition.load_image_file(FILE_PATH)
       baseName = filename.split("/")[-1]
+      baseName = baseName.split(".")[0]
 
       face_locations = face_recognition.face_locations(face_image,model="hog")
       for face_location in face_locations:
           top, right, bottom, left = face_location
+          top=0
+          right=256
+          bottom=256
+          left=0
+
           img = cv2.imread(FILE_PATH)
           
           img_trim = img[top:bottom,left:right]
@@ -63,6 +70,10 @@ class FaceChange:
           org_img[dy:dy+h,dx:dx+w] = new_img
           result_path="/media/" + baseName + "4.jpg"
           cv2.imwrite("C:/SourceCode/changeAnimeFace" + result_path,org_img)
+
+          os.remove(baseName + "2.jpg");
+          os.remove(baseName + "3.jpg");
+
           return result_path
 
   def tensor_to_image(self,tensor):
